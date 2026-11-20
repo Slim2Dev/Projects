@@ -12,11 +12,13 @@ Most practical sorting algorithms have substantially better worst-case or averag
 
 ## Video 
 
-https://github.com/user-attachments/assets/df003a4f-07b2-42f6-afab-192478f6694c
+The cropped fragment of the code focuses on the core sorting logic, the full code is below the video.
+
+[Watch the animation directly](bubblesort.mp4)
 
 ### Code i wrote for the *bubble sort*
 
-```
+```cpp
 #include <iostream>
 using namespace std;
 
