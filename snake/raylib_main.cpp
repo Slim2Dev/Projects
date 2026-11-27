@@ -258,4 +258,108 @@ int main()
         }
     }
 
+    BeginDrawing();
+    ClearBackground(Color{24, 24, 28, 255});
+
+    DrawText(TextFormat("Score: %d", game.getScore()), 12, 10, 20, RAYWHITE);
+    DrawText("WASD / Arrows", screenWidth - 165, 12, 16, GRAY);
+
+    for(int row=0; row < gridSize; row++)
+    {
+        for(int col=0; col < gridSize; col++)
+        {
+            int pixelX = col * cellSize;
+            int pixelY = topBarHeight + row * cellSize;
+
+            Color tileColor = ((row + col) % 2 == 0)
+                                    ? Color{34, 36, 42, 255};
+                                    : Color{30, 32, 38, 255};
+            DrawRectangle(pixelX, pixelY, cellSize, cellSize, tileColor);
+
+            char cell = game.getCell(row, col);
+            if(cell == 'O')
+            {
+                DrawRectangle(pixelX + 2, pixelY + 2, cellSize - 4, cellSize - 4, LIME);
+            }
+            else if(cell == 'o')
+            {
+                DrawRectangle(pixelX + 3, pixelY + 3, cellSize - 6, cellSize - 6, GREEN);
+            }
+            else if(cell == 'A')
+            {
+                if(appleTex.id != 0)
+                {
+                    Rectangle src  = { 0.0f, 0.0f, (float)appleTex.width, (float)appleTex.height };
+                    Rectangle dest = { (float)pixelX, (float)pixelY, (float)cellSize, (float)cellSize };
+                    DrawTexturePro(appleTex, src, dest, { 0.0f, 0.0f }, 0.0f, WHITE);
+                }
+                else
+                {
+                    DrawCircle(pixelX + cellSize / 2, pixelY + cellSize / 2, cellSize / 2 - 4, RED);
+                }
+            }
+        }
+    }
+
+    const auto& body = game.getSnakeBody();
+    for(size_t i=0; i<body.size(); i++)
+    {
+        int pixelX = body[i].cor_y * cellSize;
+        int pixelY = topBarHeight + body[i].cor_x * cellSize;
+
+        Texture2D tex = bodyTex;
+        float rotation = 0.0f;
+
+        if(i==0)
+        {
+            tex = headTex;
+            if(currentDir == 'd') rotation = 0.0f;
+            else if(currentDir == 's') rotation = 90.0f;
+            else if(currentDir == 'a') rotation = 180.0f;
+            else if(currentDir == 'w') rotation = 270.0f;
+        }
+        else if(i == body.size() - 1)
+        {
+            tex = tailTex;
+            int dRow = body[i - 1].cor_x - body[i].cor_x;
+            int dCol = body[i - 1].cor_y - body[i].cor_y;
+            rotation = getAngleFromDelta(dRow, dCol);
+        }
+        else
+        {
+            tex = bodyTex;
+            int dRow = body[i - 1].cor_x - body[i].cor_x;
+            int dCol = body[i - 1].cor_y - body[i].cor_y;
+            rotation = getAngleFromDelta(dRow, dCol);
+        }
+
+        Rectangle src = {0.0f, 0.0f, (float)tex.width, (float)tex.height };
+        Rectangle dest = {
+            pixelX + cellSize / 2.0f,
+            pixelY + cellSize / 2.0f,
+            (float)cellSize,
+            (float)cellSize
+        };
+        Vector2 origin = { cellSize / 2.0f, cellSize / 2.0f };
+
+        DrawTexturePro(tex, src, dest, origin, rotation, WHITE);
+
+        if (game.isGameOver())
+        {
+            DrawRectangle(0, topBarHeight, screenWidth, gridSize * cellSize, Color{0, 0, 0, 170});
+            DrawText("GAME OVER", screenWidth / 2 - 110, screenHeight / 2 - 20, 36, RED);
+            DrawText("Press R to Restart", screenWidth / 2 - 98, screenHeight / 2 + 25, 20, RAYWHITE);
+        }
+
+        EndDrawing();
+    }
+
+    if (appleTex.id != 0) UnloadTexture(appleTex);
+    UnloadTexture(tailTex);
+    UnloadTexture(bodyTex);
+    UnloadTexture(headTex);
+
+    CloseWindow();
+    return 0;
+
 }
