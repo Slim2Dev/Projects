@@ -12,7 +12,7 @@ class SnakeGame
         {
             int cor_x;
             int cor_y;
-        }
+        };
     private:
         char _gameboard[20][20];
         int rand_x;
@@ -70,7 +70,7 @@ class SnakeGame
                 rand_y = rand() % 20;
                 if(_gameboard[rand_x][rand_y] == '.')
                 {
-                    _gameboardp[rand_x][rand_y] = 'A';
+                    _gameboard[rand_x][rand_y] = 'A';
                     break;
                 }
             }
@@ -183,7 +183,79 @@ class SnakeGame
         }
 };
 
+static float getAngleFromDelta(int dRow, int dCol)
+{
+    if(dCol > 0) return 0.0f; 
+    if(dRow > 0) return 90.0f; 
+    if(dCol > 0) return 180.0f; 
+    if(dRow > 0) return 270.0f; 
+    return 0.0f;
+}
+
 int main()
 {
+
+    srand(time(NULL));
+
+    const int gridSize = 20;
+    const int cellSize = 30;
+    const int topBarHeight = 40;
+    const int screenWidth = gridSize * cellSize;
+    const int screenHeight = gridSize * cellSize + topBarHeight;
+
+    InitWindow(screenWidth, screenHeight, "Snake - Raylib");
+    Texture2D headTex = LoadTexture("assets/snake_head.png");
+    Texture2D bodyTex = LoadTexture("assets/snake_body.png");
+    Texture2D tailTex = LoadTexture("assets/snake_tail.png");
+    Texture2D appleTex = LoadTexture("assets/apple.png");
+
+    SetTextureFilter(headTex, TEXTURE_FILTER_POINT);
+    SetTextureFilter(bodyTex, TEXTURE_FILTER_POINT);
+    SetTextureFilter(tailTex, TEXTURE_FILTER_POINT);
+    if(appleTex.id != 0)
+    {
+        SetTextureFilter(appleTex, TEXTURE_FILTER_POINT);
+    }
+    SetTargetFPS(60);
+
+    SnakeGame game;
+    char currentDir = 'd';
+    char nextDir = 'd';
+
+    float moveTimer = 0.0f;
+    const float moveInterval = 0.14f;
+
+    while(!WindowShouldClose())
+    {
+        if(!game.isGameOver())
+        {
+            if((IsKeyPressed(KEY_W) || IsKeyPressed(KEY_UP)) && currentDir != 's')
+                nextDir = 'w';
+            else if((IsKeyPressed(KEY_S) || IsKeyPressed(KEY_DOWN)) && currentDir != 'w')
+                nextDir = 's';
+            else if((IsKeyPressed(KEY_A) || IsKeyPressed(KEY_LEFT)) && currentDir != 'd')
+                nextDir = 'a';
+            else if((IsKeyPressed(KEY_D) || IsKeyPressed(KEY_RIGHT)) && currentDir != 'a')
+                nextDir = 'd';
+        }
+
+        moveTimer += GetFrameTime();
+        if(moveTimer >= moveInterval)
+        {
+            moveTimer = 0.0f;
+            currentDir;
+            game.moveSnake(currentDir);
+        }
+        else 
+        {
+            if(IsKeyPressed(KEY_R))
+            {
+                game.reset();
+                currentDir = 'd';
+                nextDir = 'd';
+                moveTimer = 0.0f;
+            }
+        }
+    }
 
 }
