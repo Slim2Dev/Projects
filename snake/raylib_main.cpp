@@ -3,6 +3,7 @@
 #include <ctime>
 #include <vector>
 
+using namespace std;
 
 
 class SnakeGame
@@ -187,15 +188,14 @@ static float getAngleFromDelta(int dRow, int dCol)
 {
     if(dCol > 0) return 0.0f; 
     if(dRow > 0) return 90.0f; 
-    if(dCol > 0) return 180.0f; 
-    if(dRow > 0) return 270.0f; 
+    if(dCol < 0) return 180.0f; 
+    if(dRow < 0) return 270.0f; 
     return 0.0f;
 }
 
 int main()
 {
-
-    srand(time(NULL));
+    srand(static_cast<unsigned int>(time(NULL)));
 
     const int gridSize = 20;
     const int cellSize = 30;
@@ -212,7 +212,7 @@ int main()
     SetTextureFilter(headTex, TEXTURE_FILTER_POINT);
     SetTextureFilter(bodyTex, TEXTURE_FILTER_POINT);
     SetTextureFilter(tailTex, TEXTURE_FILTER_POINT);
-    if(appleTex.id != 0)
+    if (appleTex.id != 0)
     {
         SetTextureFilter(appleTex, TEXTURE_FILTER_POINT);
     }
@@ -225,30 +225,30 @@ int main()
     float moveTimer = 0.0f;
     const float moveInterval = 0.14f;
 
-    while(!WindowShouldClose())
+    while (!WindowShouldClose())
     {
-        if(!game.isGameOver())
+        if (!game.isGameOver())
         {
-            if((IsKeyPressed(KEY_W) || IsKeyPressed(KEY_UP)) && currentDir != 's')
+            if ((IsKeyPressed(KEY_W) || IsKeyPressed(KEY_UP)) && currentDir != 's')
                 nextDir = 'w';
-            else if((IsKeyPressed(KEY_S) || IsKeyPressed(KEY_DOWN)) && currentDir != 'w')
+            else if ((IsKeyPressed(KEY_S) || IsKeyPressed(KEY_DOWN)) && currentDir != 'w')
                 nextDir = 's';
-            else if((IsKeyPressed(KEY_A) || IsKeyPressed(KEY_LEFT)) && currentDir != 'd')
+            else if ((IsKeyPressed(KEY_A) || IsKeyPressed(KEY_LEFT)) && currentDir != 'd')
                 nextDir = 'a';
-            else if((IsKeyPressed(KEY_D) || IsKeyPressed(KEY_RIGHT)) && currentDir != 'a')
+            else if ((IsKeyPressed(KEY_D) || IsKeyPressed(KEY_RIGHT)) && currentDir != 'a')
                 nextDir = 'd';
-        }
 
-        moveTimer += GetFrameTime();
-        if(moveTimer >= moveInterval)
-        {
-            moveTimer = 0.0f;
-            currentDir;
-            game.moveSnake(currentDir);
+            moveTimer += GetFrameTime();
+            if (moveTimer >= moveInterval)
+            {
+                moveTimer = 0.0f;
+                currentDir = nextDir;
+                game.moveSnake(currentDir);
+            }
         }
-        else 
+        else
         {
-            if(IsKeyPressed(KEY_R))
+            if (IsKeyPressed(KEY_R))
             {
                 game.reset();
                 currentDir = 'd';
@@ -256,93 +256,85 @@ int main()
                 moveTimer = 0.0f;
             }
         }
-    }
 
-    BeginDrawing();
-    ClearBackground(Color{24, 24, 28, 255});
+        BeginDrawing();
+        ClearBackground(Color{24, 24, 28, 255});
 
-    DrawText(TextFormat("Score: %d", game.getScore()), 12, 10, 20, RAYWHITE);
-    DrawText("WASD / Arrows", screenWidth - 165, 12, 16, GRAY);
+        DrawText(TextFormat("Score: %d", game.getScore()), 12, 10, 20, RAYWHITE);
+        DrawText("WASD / Arrows", screenWidth - 165, 12, 16, GRAY);
 
-    for(int row=0; row < gridSize; row++)
-    {
-        for(int col=0; col < gridSize; col++)
+        for (int row = 0; row < gridSize; row++)
         {
-            int pixelX = col * cellSize;
-            int pixelY = topBarHeight + row * cellSize;
+            for (int col = 0; col < gridSize; col++)
+            {
+                int pixelX = col * cellSize;
+                int pixelY = topBarHeight + row * cellSize;
 
-            Color tileColor = ((row + col) % 2 == 0)
-                                    ? Color{34, 36, 42, 255};
-                                    : Color{30, 32, 38, 255};
-            DrawRectangle(pixelX, pixelY, cellSize, cellSize, tileColor);
+                Color tileColor = ((row + col) % 2 == 0)
+                                      ? Color{34, 36, 42, 255}
+                                      : Color{30, 32, 38, 255};
+                DrawRectangle(pixelX, pixelY, cellSize, cellSize, tileColor);
 
-            char cell = game.getCell(row, col);
-            if(cell == 'O')
-            {
-                DrawRectangle(pixelX + 2, pixelY + 2, cellSize - 4, cellSize - 4, LIME);
-            }
-            else if(cell == 'o')
-            {
-                DrawRectangle(pixelX + 3, pixelY + 3, cellSize - 6, cellSize - 6, GREEN);
-            }
-            else if(cell == 'A')
-            {
-                if(appleTex.id != 0)
+                char cell = game.getCell(row, col);
+                if (cell == 'A')
                 {
-                    Rectangle src  = { 0.0f, 0.0f, (float)appleTex.width, (float)appleTex.height };
-                    Rectangle dest = { (float)pixelX, (float)pixelY, (float)cellSize, (float)cellSize };
-                    DrawTexturePro(appleTex, src, dest, { 0.0f, 0.0f }, 0.0f, WHITE);
-                }
-                else
-                {
-                    DrawCircle(pixelX + cellSize / 2, pixelY + cellSize / 2, cellSize / 2 - 4, RED);
+                    if (appleTex.id != 0)
+                    {
+                        Rectangle src = { 0.0f, 0.0f, (float)appleTex.width, (float)appleTex.height };
+                        Rectangle dest = { (float)pixelX, (float)pixelY, (float)cellSize, (float)cellSize };
+                        DrawTexturePro(appleTex, src, dest, { 0.0f, 0.0f }, 0.0f, WHITE);
+                    }
+                    else
+                    {
+                        DrawCircle(pixelX + cellSize / 2, pixelY + cellSize / 2, cellSize / 2 - 4, RED);
+                    }
                 }
             }
         }
-    }
 
-    const auto& body = game.getSnakeBody();
-    for(size_t i=0; i<body.size(); i++)
-    {
-        int pixelX = body[i].cor_y * cellSize;
-        int pixelY = topBarHeight + body[i].cor_x * cellSize;
-
-        Texture2D tex = bodyTex;
-        float rotation = 0.0f;
-
-        if(i==0)
+        const auto& body = game.getSnakeBody();
+        for (size_t i = 0; i < body.size(); i++)
         {
-            tex = headTex;
-            if(currentDir == 'd') rotation = 0.0f;
-            else if(currentDir == 's') rotation = 90.0f;
-            else if(currentDir == 'a') rotation = 180.0f;
-            else if(currentDir == 'w') rotation = 270.0f;
-        }
-        else if(i == body.size() - 1)
-        {
-            tex = tailTex;
-            int dRow = body[i - 1].cor_x - body[i].cor_x;
-            int dCol = body[i - 1].cor_y - body[i].cor_y;
-            rotation = getAngleFromDelta(dRow, dCol);
-        }
-        else
-        {
-            tex = bodyTex;
-            int dRow = body[i - 1].cor_x - body[i].cor_x;
-            int dCol = body[i - 1].cor_y - body[i].cor_y;
-            rotation = getAngleFromDelta(dRow, dCol);
-        }
+            int pixelX = body[i].cor_y * cellSize;
+            int pixelY = topBarHeight + body[i].cor_x * cellSize;
 
-        Rectangle src = {0.0f, 0.0f, (float)tex.width, (float)tex.height };
-        Rectangle dest = {
-            pixelX + cellSize / 2.0f,
-            pixelY + cellSize / 2.0f,
-            (float)cellSize,
-            (float)cellSize
-        };
-        Vector2 origin = { cellSize / 2.0f, cellSize / 2.0f };
+            Texture2D tex = bodyTex;
+            float rotation = 0.0f;
 
-        DrawTexturePro(tex, src, dest, origin, rotation, WHITE);
+            if (i == 0)
+            {
+                tex = headTex;
+                if (currentDir == 'd') rotation = 0.0f;
+                else if (currentDir == 's') rotation = 90.0f;
+                else if (currentDir == 'a') rotation = 180.0f;
+                else if (currentDir == 'w') rotation = 270.0f;
+            }
+            else if (i == body.size() - 1)
+            {
+                tex = tailTex;
+                int dRow = body[i - 1].cor_x - body[i].cor_x;
+                int dCol = body[i - 1].cor_y - body[i].cor_y;
+                rotation = getAngleFromDelta(dRow, dCol);
+            }
+            else
+            {
+                tex = bodyTex;
+                int dRow = body[i - 1].cor_x - body[i].cor_x;
+                int dCol = body[i - 1].cor_y - body[i].cor_y;
+                rotation = getAngleFromDelta(dRow, dCol);
+            }
+
+            Rectangle src = { 0.0f, 0.0f, (float)tex.width, (float)tex.height };
+            Rectangle dest = {
+                pixelX + cellSize / 2.0f,
+                pixelY + cellSize / 2.0f,
+                (float)cellSize,
+                (float)cellSize
+            };
+            Vector2 origin = { cellSize / 2.0f, cellSize / 2.0f };
+
+            DrawTexturePro(tex, src, dest, origin, rotation, WHITE);
+        }
 
         if (game.isGameOver())
         {
@@ -361,5 +353,4 @@ int main()
 
     CloseWindow();
     return 0;
-
 }
